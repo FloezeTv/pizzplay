@@ -39,7 +39,7 @@ fn build_client() -> Return {
         .exec()?;
 
     // Output path can now be gotten at compile-time using `env!("CLIENT_BUILD_DIR")`
-    println!("cargo:rustc-env=CLIENT_BUILD_DIR=\"{out_path}\"");
+    println!("cargo:rustc-env=CLIENT_BUILD_DIR={out_path}");
 
     Ok(())
 }
