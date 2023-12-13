@@ -7,3 +7,6 @@ edition = "2021"
 
 [dependencies]
 axum = "0.7.2"
+
+[build-dependencies]
+npm_rs = "1.0.0"
