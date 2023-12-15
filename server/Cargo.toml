@@ -1,16 +1,20 @@
 [package]
+edition = "2021"
 name = "pizzplay-server"
 version = "0.1.0"
-edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 axum = "0.7.2"
+enum-map = "2.7.3"
+futures = "0.3.29"
 include_dir = "0.7.3"
 infer = "0.15.0"
 mime_guess = "2.0.4"
-tokio = {version = "1", features = ["full"]}
+serde = {version = "1.0", features = ["derive"]}
+tokio = {version = "1", features = ["full", "sync"]}
+tokio-stream = {version = "0.1", features = ["sync"]}
 
 [build-dependencies]
 npm_rs = "1.0.0"
