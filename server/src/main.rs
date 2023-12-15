@@ -9,6 +9,8 @@ mod events;
 async fn main() {
     let (event_routes, event_sender) = events::new();
     let event_sender = Arc::new(event_sender);
+    let es1 = event_sender.clone();
+    let es2 = event_sender.clone();
     let routes = Router::new()
         .merge(client::client_handler(Some("index.html")))
         .nest("/events", event_routes)
@@ -17,6 +19,8 @@ async fn main() {
             \"title\": \"Test\",
             \"subtitle\": \"This is a test from the server\"
           }}", 1080 + (SystemTime::UNIX_EPOCH.elapsed().unwrap().as_millis() % 100)))}))
+          .route("/test-show", get(|| async move {es1(EventType::PopupShow, "Popup from Server".to_owned())}))
+          .route("/test-hide", get(|| async move {es2(EventType::PopupHide, String::new())}))
         .fallback(|| async { (StatusCode::NOT_FOUND, "Not Found") });
 
     let addr = &SocketAddr::new(IpAddr::from(Ipv6Addr::UNSPECIFIED), 8080);

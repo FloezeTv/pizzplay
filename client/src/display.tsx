@@ -25,6 +25,7 @@ const isImage = (o: unknown): o is Image => {
 // For customer-facing displays
 export default function Display() {
   const [images, setImages] = useState<[Image, number][]>([]);
+  const [popup, setPopup] = useState<{ text: string, show: boolean }>({ text: '', show: false });
 
   /**
    * Adds a new image to the display
@@ -46,7 +47,8 @@ export default function Display() {
     })
   };
 
-  useEventListener(`${import.meta.env.DEV ? /* sse-proxy is kind of broken */ 'http://localhost:8080' : import.meta.env.BASE_URL}/events/subscribe?image_change`, {
+  // The event listeners for the server
+  useEventListener(`${import.meta.env.DEV ? /* sse-proxy is kind of broken */ 'http://localhost:8080' : import.meta.env.BASE_URL}/events/subscribe?image_change&popup_show&popup_hide`, {
     'image_change': (d) => {
       try {
         const json = JSON.parse(d);
@@ -55,6 +57,12 @@ export default function Display() {
       } catch (e) {
         console.warn("Received invalid image:", e);
       }
+    },
+    'popup_show': (d) => {
+      setPopup({ text: d, show: true });
+    },
+    'popup_hide': () => {
+      setPopup(p => ({ ...p, show: false }));
     },
   });
 
@@ -67,6 +75,20 @@ export default function Display() {
           <h2 key={'subtitle' + key} className={classList(styles.text, styles.subtitle)} >{img.subtitle}</h2>
         </Fragment>;
       })}
+      <Popup content={popup.text} show={popup.show} />
     </div>
   );
 }
+
+/**
+ * Popup-component that animated based on the `show`-value.
+ * Keep in tree at all times set `show` to `false` to hide.
+ * 
+ * @param params The `content` and whether to `show` the component
+ * @returns The component
+ */
+const Popup = ({ content, show }: { content: string, show: boolean }) => {
+  return <div className={classList(styles.popup, show ? styles.popupShow : styles.popupRemove)}>
+    <div className={classList(styles.text, styles.popupText, show ? styles.popupTextShow : styles.popupTextRemove)}>{content}</div>
+  </div>;
+};

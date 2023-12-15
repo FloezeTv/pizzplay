@@ -45,6 +45,8 @@ pub fn new() -> (
 #[derive(Enum, PartialEq, Eq, Debug)]
 pub enum EventType {
     ImageChange,
+    PopupShow,
+    PopupHide,
 }
 
 type EventChannels = Arc<EnumMap<EventType, Arc<Sender<String>>>>;
@@ -52,6 +54,8 @@ type EventChannels = Arc<EnumMap<EventType, Arc<Sender<String>>>>;
 #[derive(Deserialize)]
 struct SubscriptionTarget {
     image_change: Option<String>,
+    popup_show: Option<String>,
+    popup_hide: Option<String>,
 }
 
 fn get_subscribed_streams(
@@ -64,6 +68,20 @@ fn get_subscribed_streams(
         streams.insert(
             "image_change",
             BroadcastStream::new(event_channels[EventType::ImageChange].subscribe()),
+        );
+    }
+
+    if subscription_target.popup_show.is_some() {
+        streams.insert(
+            "popup_show",
+            BroadcastStream::new(event_channels[EventType::PopupShow].subscribe()),
+        );
+    }
+
+    if subscription_target.popup_hide.is_some() {
+        streams.insert(
+            "popup_hide",
+            BroadcastStream::new(event_channels[EventType::PopupHide].subscribe()),
         );
     }
 
