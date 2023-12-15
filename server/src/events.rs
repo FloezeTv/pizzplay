@@ -49,6 +49,8 @@ pub enum EventType {
     PopupHide,
 }
 
+pub type EventAddFunction = Box<dyn Fn(EventType, String) -> Result<(), ()> + Send + Sync>;
+
 type EventChannels = Arc<EnumMap<EventType, Arc<Sender<String>>>>;
 
 #[derive(Deserialize)]

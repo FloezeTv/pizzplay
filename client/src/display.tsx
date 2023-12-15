@@ -3,14 +3,13 @@ import ReactDOM from 'react-dom/client'
 import styles from './display.module.css'
 import './index.css'
 import { useEventListener } from './eventlistener'
+import { classList } from './utils'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Display />
   </React.StrictMode>,
 )
-
-const classList = (...classes: string[]): string => classes.join(' ');
 
 type Image = {
   url: string;

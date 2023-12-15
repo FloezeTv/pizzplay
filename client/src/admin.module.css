@@ -1,0 +1,139 @@
+.container {
+	--foreground: #000;
+	--background: #fff;
+	--primary: #dd6b20;
+	--primary-text: #fff;
+
+
+	width: 100vw;
+	height: 100vh;
+	background: var(--background);
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.dark {
+	--foreground: #fff;
+	--background: #000;
+	--primary: #f6ad55;
+	--primary-text: #000;
+}
+
+.container * {
+	color: var(--foreground);
+}
+
+.containerLast {
+	margin-top: auto;
+}
+
+.waitList {
+	display: flex;
+	flex-direction: row;
+	align-items: stretch;
+	justify-content: flex-start;
+	gap: 6px;
+	overflow-x: scroll;
+	height: 10.5em;
+
+	/* Some visual space and space for scrollbar */
+	padding-bottom: 0.5em;
+}
+
+.waitListElement {
+	all: unset;
+	background: var(--primary);
+	color: var(--primary-text);
+	border-radius: 5px;
+	font-size: 5em;
+	min-width: 2em;
+	min-height: 2em;
+	padding: 0.05em;
+	animation: fromScale0 0.3s cubic-bezier(0.65, 0, 0.35, 1) 0s 1 forwards;
+	font-weight: bolder;
+	cursor: pointer;
+	user-select: none;
+	transition: background 0.1s;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.waitListElement:hover {
+	background: var(--foreground);
+}
+
+.handoutContainer {
+	flex-grow: 1;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.handoutGreen {
+	--foreground: green;
+}
+
+.handoutDisplay {
+	height: 1em;
+	font-size: 10em;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: var(--foreground);
+}
+
+.handoutDisplayShow {
+	opacity: 1;
+	animation: fromOpacity0 1s ease 0s 1 forwards;
+}
+
+.handoutDisplayRemove {
+	opacity: 0;
+	animation: fromOpacity1 1s ease 0s 1 forwards;
+}
+
+.buttonPanel {
+	height: 3em;
+	display: flex;
+	align-items: stretch;
+	justify-content: space-evenly;
+	gap: 6px;
+}
+
+.buttonPanelButton {
+	all: unset;
+	flex-grow: 1;
+	background: var(--primary);
+	color: var(--primary-text);
+	border-radius: 5px;
+	font-size: 1em;
+	padding: 0.2em;
+	font-weight: bolder;
+	cursor: pointer;
+	user-select: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+@keyframes fromScale0 {
+	from {
+		transform: scale(0);
+	}
+}
+
+@keyframes fromOpacity0 {
+	from {
+		opacity: 0;
+	}
+}
+
+@keyframes fromOpacity1 {
+	from {
+		opacity: 1;
+	}
+}

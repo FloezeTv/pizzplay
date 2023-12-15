@@ -4,6 +4,7 @@ use std::{net::{IpAddr, Ipv6Addr, SocketAddr}, sync::Arc, time::SystemTime};
 
 mod client;
 mod events;
+mod orders;
 
 #[tokio::main]
 async fn main() {
@@ -14,6 +15,7 @@ async fn main() {
     let routes = Router::new()
         .merge(client::client_handler(Some("index.html")))
         .nest("/events", event_routes)
+        .nest("/orders", orders::routes(event_sender.clone()))
         .route("/test-event", get(move || async move {event_sender(EventType::ImageChange, format!("{{
             \"url\": \"https://picsum.photos/1920/{}\",
             \"title\": \"Test\",

@@ -12,4 +12,9 @@ export default defineConfig({
       },
     },
   },
+  server: {
+    proxy: {
+      '/orders/': 'http://localhost:8080/'
+    },
+  },
 })
