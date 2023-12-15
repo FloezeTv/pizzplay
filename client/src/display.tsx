@@ -1,7 +1,8 @@
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import styles from './display.module.css'
 import './index.css'
+import { useEventListener } from './eventlistener'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -15,6 +16,10 @@ type Image = {
   url: string;
   title: string;
   subtitle: string;
+};
+
+const isImage = (o: unknown): o is Image => {
+  return typeof o === "object" && o !== null && "url" in o && typeof o.url === "string" && "title" in o && typeof o.title === "string" && "subtitle" in o && typeof o.subtitle === "string";
 };
 
 // For customer-facing displays
@@ -41,16 +46,17 @@ export default function Display() {
     })
   };
 
-  // Display some debug images for now
-  useEffect(() => {
-    let i = 0;
-    const intervalId = setInterval(() => {
-      addImage({ url: `https://picsum.photos/1920/${1080 + i % 100}`, title: `Item ${i}`, subtitle: `Only $${(i * 431 % 4079) / 100}` });
-      i += 1;
-    }, 5000);
-    return () => clearInterval(intervalId);
-  }, []);
-  // =================================
+  useEventListener(`${import.meta.env.DEV ? /* sse-proxy is kind of broken */ 'http://localhost:8080' : import.meta.env.BASE_URL}/events/subscribe?image_change`, {
+    'image_change': (d) => {
+      try {
+        const json = JSON.parse(d);
+        if (isImage(json))
+          addImage(json)
+      } catch (e) {
+        console.warn("Received invalid image:", e);
+      }
+    },
+  });
 
   return (
     <div className={styles.container}>
