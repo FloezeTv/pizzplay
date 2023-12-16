@@ -64,6 +64,8 @@ export default function Admin() {
 	useEventListener(new URL('events/subscribe?orders_updated', window.location.origin).href, {
 		'orders_updated': (o) => {
 			const waiting = JSON.parse(o);
+			// Currently assumes multiple admins would have different number namespaces
+			// (i.e., does not synchronize numbers between them)
 			setState(s => ({ ...s, waiting: waiting }));
 		},
 	});
