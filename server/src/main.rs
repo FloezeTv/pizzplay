@@ -1,19 +1,31 @@
 use axum::{http::StatusCode, routing::get, Router};
 use events::EventType;
+use images::Images;
 use std::{
+    fs,
     net::{IpAddr, Ipv6Addr, SocketAddr},
     sync::Arc,
     time::SystemTime,
 };
 
+mod args;
 mod client;
 mod events;
+mod images;
 mod orders;
 
 #[tokio::main]
 async fn main() {
+    let args = args::parse();
+
     let (event_routes, event_sender) = events::new();
     let event_sender = Arc::new(event_sender);
+    let mut images = Images::new(event_sender.clone(), args.image_timeout, args.image_offset);
+    let image_data = fs::read_to_string(args.image_path).unwrap_or("[]".to_owned());
+    images
+        .set_images(&image_data)
+        .expect(format!("Failed to read image data: {image_data:?}").as_str());
+    images.run();
     let es1 = event_sender.clone();
     let es2 = event_sender.clone();
     let routes = Router::new()
