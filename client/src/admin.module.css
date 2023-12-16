@@ -20,6 +20,10 @@
 	--primary-text: #000;
 }
 
+.primary {
+	--background: var(--primary);
+	--foreground: var(--primary-text);
+}
 .container * {
 	color: var(--foreground);
 }
@@ -43,8 +47,8 @@
 
 .waitListElement {
 	all: unset;
-	background: var(--primary);
-	color: var(--primary-text);
+	background: var(--background);
+		color: var(--foreground);
 	border-radius: 5px;
 	font-size: 5em;
 	min-width: 2em;
@@ -60,6 +64,15 @@
 	align-items: center;
 }
 
+.pizza {
+	--background: #fc0;
+	--foreground: #000;
+}
+
+.flammkuchen {
+	--background: #4ea;
+	--foreground: #000;
+}
 .waitListElement:hover {
 	background: var(--foreground);
 }
@@ -107,8 +120,8 @@
 .buttonPanelButton {
 	all: unset;
 	flex-grow: 1;
-	background: var(--primary);
-	color: var(--primary-text);
+	background: var(--background);
+		color: var(--foreground);
 	border-radius: 5px;
 	font-size: 1em;
 	padding: 0.2em;

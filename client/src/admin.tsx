@@ -114,12 +114,12 @@ export default function Admin() {
 			<HandoutDisplay className={styles.handoutGreen} numbers={[...state.incomingNumbers]} show={showIncomingNumbers} />
 		</div>
 		<ButtonPanel buttons={[
-			['Order Pizza', () => order('pizza')],
-			['Order Flammkuchen', () => order('flammkuchen')],
-			['Serve Pizza', () => serve('pizza')],
-			['Serve Flammkuchen', () => serve('flammkuchen')],
-			['Skip', () => skip(1)],
-			['Unskip', () => skip(-1)],
+			['Order Pizza', styles.pizza, () => order('pizza')],
+			['Order Flammkuchen', styles.flammkuchen, () => order('flammkuchen')],
+			['Serve Pizza', styles.pizza, () => serve('pizza')],
+			['Serve Flammkuchen', styles.flammkuchen, () => serve('flammkuchen')],
+			['Skip', styles.primary, () => skip(1)],
+			['Unskip', styles.primary, () => skip(-1)],
 		]} />
 		<WaitList onClick={console.log} waiting={[...state.waiting]} />
 	</div>;
@@ -164,14 +164,14 @@ const HandoutDisplay = ({ className, numbers, show }: { className?: string, numb
 	</div>;
 }
 
-const ButtonPanel = ({ buttons }: { buttons: [string, () => unknown][] }) => {
+const ButtonPanel = ({ buttons }: { buttons: [string, string, () => unknown][] }) => {
 	return <div className={styles.buttonPanel}>
-		{buttons.map(([text, target]) => <button key={text} className={styles.buttonPanelButton} onClick={() => target()}>{text}</button>)}
+		{buttons.map(([text, className, target]) => <button key={text} className={classList(styles.buttonPanelButton, className)} onClick={() => target()}>{text}</button>)}
 	</div>
 }
 
 const WaitList = ({ className, waiting, onClick }: { className?: string, waiting: Order[], onClick: (index: Order) => unknown }) => {
 	return <div className={classList(styles.waitList, className ?? '')}>
-		{waiting.map(w => <button key={w.number} className={styles.waitListElement} onClick={() => onClick(w)}>{w.number}</button>)}
+		{waiting.map(w => <button key={w.number} className={classList(styles.waitListElement, w.type === 'pizza' ? styles.pizza : styles.flammkuchen)} onClick={() => onClick(w)}>{w.number}</button>)}
 	</div>
 }
