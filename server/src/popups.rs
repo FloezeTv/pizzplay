@@ -51,7 +51,9 @@ impl Popups {
         tokio::task::spawn(async move {
             loop {
                 {
-                    wait_timeout.lock().await.tick().await;
+                    let mut wait_timeout = wait_timeout.lock().await;
+                    wait_timeout.reset();
+                    wait_timeout.tick().await;
                 };
                 {
                     let popup = popups.lock().await.pop_front();
