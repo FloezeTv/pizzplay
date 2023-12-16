@@ -7,9 +7,9 @@ use axum::{
     Router,
 };
 
-use crate::events::{self, EventType};
+use crate::events::EventAddFunction;
 
-pub fn routes(add_event: Arc<events::EventAddFunction>) -> Router {
+pub fn routes(add_event: Arc<EventAddFunction>) -> Router {
     Router::new()
         .route("/:id", get(create_order))
         .route("/:id", delete(serve_order))
@@ -18,15 +18,18 @@ pub fn routes(add_event: Arc<events::EventAddFunction>) -> Router {
 
 async fn create_order(
     Path(_id): Path<u64>,
-    State(_add_event): State<Arc<events::EventAddFunction>>,
+    State(_add_event): State<Arc<EventAddFunction>>,
 ) -> impl IntoResponse {
     "Ok"
 }
 
 async fn serve_order(
     Path(id): Path<u64>,
-    State(add_event): State<Arc<events::EventAddFunction>>,
+    State(add_event): State<Arc<EventAddFunction>>,
 ) -> impl IntoResponse {
-    let _ = add_event(EventType::PopupShow, format!("{id}"));
+    let _ = add_event(
+        crate::events::EventType::PopupShow,
+        Box::new(move |_| id.to_string()),
+    );
     "Ok"
 }

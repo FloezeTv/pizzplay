@@ -14,7 +14,8 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      '/orders/': 'http://localhost:8080/'
+      '/orders/': 'http://localhost:8080/',
+      '/events/subscribe': 'http://localhost:8080/',
     },
   },
 })

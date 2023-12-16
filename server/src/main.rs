@@ -1,6 +1,10 @@
-use axum::{http::StatusCode, Router, routing::get};
+use axum::{http::StatusCode, routing::get, Router};
 use events::EventType;
-use std::{net::{IpAddr, Ipv6Addr, SocketAddr}, sync::Arc, time::SystemTime};
+use std::{
+    net::{IpAddr, Ipv6Addr, SocketAddr},
+    sync::Arc,
+    time::SystemTime,
+};
 
 mod client;
 mod events;
@@ -16,13 +20,40 @@ async fn main() {
         .merge(client::client_handler(Some("index.html")))
         .nest("/events", event_routes)
         .nest("/orders", orders::routes(event_sender.clone()))
-        .route("/test-event", get(move || async move {event_sender(EventType::ImageChange, format!("{{
-            \"url\": \"https://picsum.photos/1920/{}\",
-            \"title\": \"Test\",
-            \"subtitle\": \"This is a test from the server\"
-          }}", 1080 + (SystemTime::UNIX_EPOCH.elapsed().unwrap().as_millis() % 100)))}))
-          .route("/test-show", get(|| async move {es1(EventType::PopupShow, "Popup from Server".to_owned())}))
-          .route("/test-hide", get(|| async move {es2(EventType::PopupHide, String::new())}))
+        .route(
+            "/test-event",
+            get(move || async move {
+                event_sender(
+                    EventType::ImageChange,
+                    Box::new(|i| {
+                        format!(
+                            "{{
+                                \"url\": \"https://picsum.photos/1920/{}\",
+                                \"title\": \"Test\",
+                                \"subtitle\": \"This is a test from the server\"
+                            }}",
+                            1080 + (SystemTime::UNIX_EPOCH.elapsed().unwrap().as_millis()
+                                + i as u128 % 100)
+                        )
+                    }),
+                )
+                .await
+            }),
+        )
+        .route(
+            "/test-show",
+            get(|| async move {
+                es1(
+                    EventType::PopupShow,
+                    Box::new(|i| format!("Popup from Server ({})", i)),
+                )
+                .await
+            }),
+        )
+        .route(
+            "/test-hide",
+            get(|| async move { es2(EventType::PopupHide, Box::new(|_| String::new())).await }),
+        )
         .fallback(|| async { (StatusCode::NOT_FOUND, "Not Found") });
 
     let addr = &SocketAddr::new(IpAddr::from(Ipv6Addr::UNSPECIFIED), 8080);

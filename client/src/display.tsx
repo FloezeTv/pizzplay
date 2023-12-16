@@ -47,7 +47,7 @@ export default function Display() {
   };
 
   // The event listeners for the server
-  useEventListener(`${import.meta.env.DEV ? /* sse-proxy is kind of broken */ 'http://localhost:8080' : import.meta.env.BASE_URL}/events/subscribe?image_change&popup_show&popup_hide`, {
+  useEventListener(new URL('events/subscribe?image_change&popup_show&popup_hide', window.location.origin).href, {
     'image_change': (d) => {
       try {
         const json = JSON.parse(d);
