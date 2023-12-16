@@ -1,4 +1,9 @@
-use std::{error::Error, fs, sync::Arc, thread::current, time::{SystemTime, Duration}};
+use std::{
+    error::Error,
+    fs,
+    sync::Arc,
+    time::{Duration, SystemTime},
+};
 
 use axum::{
     extract::{Path, State},
@@ -10,7 +15,10 @@ use futures::lock::Mutex;
 
 use serde::{Deserialize, Serialize};
 
-use crate::popups::Popups;
+use crate::{
+    events::{EventAddFunction, EventType},
+    popups::Popups,
+};
 
 #[derive(Serialize, Deserialize, Clone)]
 struct Order {
@@ -21,18 +29,21 @@ struct Order {
 }
 
 struct OrderState {
+    add_event: Arc<EventAddFunction>,
     popups: Arc<Mutex<Popups>>,
     current: Arc<Mutex<Vec<Order>>>,
     all: Arc<Mutex<Vec<Order>>>,
 }
 
-pub fn routes(popups: Arc<Mutex<Popups>>) -> Router {
+pub fn routes(add_event: Arc<EventAddFunction>, popups: Arc<Mutex<Popups>>) -> Router {
     let (current, all) = load().unwrap_or_else(|_| (Vec::new(), Vec::new()));
     Router::new()
         .route("/:id", post(create_order))
         .route("/:id", delete(serve_order))
         .route("/", get(statistics))
+        .route("/current", get(current_orders))
         .with_state(Arc::new(OrderState {
+            add_event,
             popups,
             current: Arc::new(Mutex::new(current)),
             all: Arc::new(Mutex::new(all)),
@@ -45,13 +56,25 @@ async fn create_order(
     body: String,
 ) -> impl IntoResponse {
     let order = Order {
-        timestamp: SystemTime::UNIX_EPOCH.elapsed().unwrap_or(Duration::default()).as_millis(),
+        timestamp: SystemTime::UNIX_EPOCH
+            .elapsed()
+            .unwrap_or(Duration::default())
+            .as_millis(),
         order_type: body,
         number: id,
     };
-    {state.all.lock().await.push(order.clone());};
+    {
+        state.all.lock().await.push(order.clone());
+    };
     let mut current_state = state.current.lock().await;
     current_state.push(order.clone());
+    if let Ok(current_state_json) = serde_json::to_string(&*current_state) {
+        let _ = (state.add_event)(
+            EventType::OrdersUpdated,
+            Box::new(move |_| current_state_json.clone()),
+        )
+        .await;
+    }
     Json(current_state.clone())
 }
 
@@ -59,16 +82,29 @@ async fn serve_order(
     Path(id): Path<u64>,
     State(state): State<Arc<OrderState>>,
 ) -> impl IntoResponse {
-    {state.popups.lock().await.add_popup(id.to_string())};
+    {
+        state.popups.lock().await.add_popup(id.to_string())
+    };
     let mut current = state.current.lock().await;
     let all = state.all.lock().await;
     current.retain(|e| e.number != id);
+    if let Ok(current_state_json) = serde_json::to_string(&*current) {
+        let _ = (state.add_event)(
+            EventType::OrdersUpdated,
+            Box::new(move |_| current_state_json.clone()),
+        )
+        .await;
+    }
     save(&current, &all);
     Json(current.clone())
 }
 
 async fn statistics(State(state): State<Arc<OrderState>>) -> impl IntoResponse {
     Json(state.all.lock().await.clone())
+}
+
+async fn current_orders(State(state): State<Arc<OrderState>>) -> impl IntoResponse {
+    Json(state.current.lock().await.clone())
 }
 
 fn save(current: &Vec<Order>, all: &Vec<Order>) {

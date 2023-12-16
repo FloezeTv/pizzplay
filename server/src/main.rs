@@ -43,7 +43,7 @@ async fn main() {
     let routes = Router::new()
         .merge(client::client_handler(Some("index.html")))
         .nest("/events", event_routes)
-        .nest("/orders", orders::routes(popups))
+        .nest("/orders", orders::routes(event_sender.clone(), popups))
         .nest_service("/assets", ServeDir::new(args.assets_dir))
         .route(
             "/test-event",

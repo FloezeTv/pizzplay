@@ -51,6 +51,7 @@ pub enum EventType {
     ImageChange,
     PopupShow,
     PopupHide,
+    OrdersUpdated,
 }
 
 pub type EventAddFunction = Box<
@@ -66,6 +67,7 @@ struct SubscriptionTarget {
     image_change: Option<String>,
     popup_show: Option<String>,
     popup_hide: Option<String>,
+    orders_updated: Option<String>,
 }
 
 async fn get_subscribed_streams(
@@ -89,6 +91,11 @@ async fn get_subscribed_streams(
             &subscription_target.popup_hide,
             EventType::PopupHide,
             "popup_hide",
+        ),
+        (
+            &subscription_target.orders_updated,
+            EventType::OrdersUpdated,
+            "orders_updated",
         ),
     ] {
         if check.is_some() {

@@ -4,6 +4,7 @@ import styles from './admin.module.css'
 import './index.css'
 import { classList } from './utils'
 import { useHotkeys } from 'react-hotkeys-hook';
+import { useEventListener } from './eventlistener'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
 	<React.StrictMode>
@@ -53,7 +54,21 @@ export default function Admin() {
 		};
 	}, [showIncomingNumbers, showOutgoingNumbers]);
 
-	const tellServerAboutOrder = (type: OrderType, number: number) => fetch(`/orders/${number}`, { method: 'POST', body: type });
+	useEffect(() => {
+		fetch('/orders/current').then(r => r.json()).then(r =>
+			setState(s => ({ ...s, waiting: r }))
+		);
+	}, []);
+
+	// The event listeners for the server
+	useEventListener(new URL('events/subscribe?orders_updated', window.location.origin).href, {
+		'orders_updated': (o) => {
+			const waiting = JSON.parse(o);
+			setState(s => ({ ...s, waiting: waiting }));
+		},
+	});
+
+	const tellServerAboutOrder = (type: OrderType, number: number) => fetch(`/orders/${number}`, { method: 'POST', body: type }).then(r => r.json()).then(r => setState(s => ({ ...s, waiting: r })));
 	const order = (type: OrderType) => {
 		setState(s => {
 			tellServerAboutOrder(type, s.currentNumber);
@@ -68,7 +83,7 @@ export default function Admin() {
 		setShowOutgoingNumbers(true);
 	}
 
-	const tellServerAboutServing = (number: number) => fetch(`/orders/${number}`, { method: 'DELETE' });
+	const tellServerAboutServing = (number: number) => fetch(`/orders/${number}`, { method: 'DELETE' }).then(r => r.json()).then(r => setState(s => ({ ...s, waiting: r })));
 
 	const serve = (type: OrderType) => {
 		setState(s => {
