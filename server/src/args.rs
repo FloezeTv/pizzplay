@@ -21,6 +21,10 @@ pub struct Args {
     /// Time to wait between popups in seconds
     #[arg(long, default_value_t = 1)]
     pub popup_wait: u64,
+
+    /// The directory to serve user-assets (like images) from
+    #[arg(long, default_value = "./assets")]
+    pub assets_dir: String,
 }
 
 pub fn parse() -> Args {

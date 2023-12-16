@@ -9,6 +9,7 @@ use std::{
     sync::Arc,
     time::SystemTime,
 };
+use tower_http::services::ServeDir;
 
 mod args;
 mod client;
@@ -43,6 +44,7 @@ async fn main() {
         .merge(client::client_handler(Some("index.html")))
         .nest("/events", event_routes)
         .nest("/orders", orders::routes(popups))
+        .nest_service("/assets", ServeDir::new(args.assets_dir))
         .route(
             "/test-event",
             get(move || async move {
