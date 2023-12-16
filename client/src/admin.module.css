@@ -1,6 +1,7 @@
 .container {
 	--foreground: #000;
 	--background: #fff;
+	--hover: #000;
 	--primary: #dd6b20;
 	--primary-text: #fff;
 
@@ -16,6 +17,7 @@
 .dark {
 	--foreground: #fff;
 	--background: #000;
+	--hover: #fff;
 	--primary: #f6ad55;
 	--primary-text: #000;
 }
@@ -68,15 +70,17 @@
 .pizza {
 	--background: #fc0;
 	--foreground: #000;
+	--hover: #fff;
 }
 
 .flammkuchen {
 	--background: #4ea;
 	--foreground: #000;
+	--hover: #fff;
 }
 
 .waitListElement:hover {
-	background: var(--foreground);
+	background: var(--hover);
 }
 
 .handoutContainer {
