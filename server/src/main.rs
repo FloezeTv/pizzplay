@@ -1,6 +1,8 @@
 use axum::{http::StatusCode, routing::get, Router};
 use events::EventType;
+use futures::lock::Mutex;
 use images::Images;
+use popups::Popups;
 use std::{
     fs,
     net::{IpAddr, Ipv6Addr, SocketAddr},
@@ -13,6 +15,7 @@ mod client;
 mod events;
 mod images;
 mod orders;
+mod popups;
 
 #[tokio::main]
 async fn main() {
@@ -26,12 +29,20 @@ async fn main() {
         .set_images(&image_data)
         .expect(format!("Failed to read image data: {image_data:?}").as_str());
     images.run();
+    let popups = Arc::new(Mutex::new(Popups::new(
+        event_sender.clone(),
+        args.popup_show,
+        args.popup_wait,
+    )));
+    {
+        popups.lock().await.run();
+    };
     let es1 = event_sender.clone();
     let es2 = event_sender.clone();
     let routes = Router::new()
         .merge(client::client_handler(Some("index.html")))
         .nest("/events", event_routes)
-        .nest("/orders", orders::routes(event_sender.clone()))
+        .nest("/orders", orders::routes(popups))
         .route(
             "/test-event",
             get(move || async move {
