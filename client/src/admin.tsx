@@ -118,6 +118,7 @@ export default function Admin() {
 		]} />
 		<WaitList onClick={console.log} waiting={[...state.waiting]} />
 		<div className={styles.currentNumber}>{state.currentNumber}</div>
+		<Clock className={styles.topLeft} />
 	</div>;
 }
 
@@ -170,4 +171,19 @@ const WaitList = ({ className, waiting, onClick }: { className?: string, waiting
 	return <div className={classList(styles.waitList, className ?? '')}>
 		{waiting.map(w => <button key={w.number} className={classList(styles.waitListElement, w.type === 'pizza' ? styles.pizza : styles.flammkuchen)} onClick={() => onClick(w)}>{w.number}</button>)}
 	</div>
+}
+
+const Clock = ({ className }: { className?: string }) => {
+	const [time, setTime] = useState<string>('');
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			const t = new Date();
+			setTime(`${t.getHours().toString().padStart(2, '0')}:${t.getMinutes().toString().padStart(2, '0')}`);
+		}, 1000);
+
+		return () => clearInterval(interval);
+	}, []);
+
+	return <div className={classList(styles.clock, className ?? '')}>{time}</div>
 }
