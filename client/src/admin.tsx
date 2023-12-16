@@ -53,7 +53,7 @@ export default function Admin() {
 		};
 	}, [showIncomingNumbers, showOutgoingNumbers]);
 
-	const tellServerAboutOrder = (_type: OrderType, number: number) => fetch(`/orders/${number}`, { method: 'POST' });
+	const tellServerAboutOrder = (type: OrderType, number: number) => fetch(`/orders/${number}`, { method: 'POST', body: type });
 	const order = (type: OrderType) => {
 		setState(s => {
 			tellServerAboutOrder(type, s.currentNumber);
