@@ -67,6 +67,7 @@ async fn create_order(
         state.all.lock().await.push(order.clone());
     };
     let mut current_state = state.current.lock().await;
+    let all = state.all.lock().await;
     current_state.push(order.clone());
     if let Ok(current_state_json) = serde_json::to_string(&*current_state) {
         let _ = (state.add_event)(
@@ -75,6 +76,7 @@ async fn create_order(
         )
         .await;
     }
+    save(&current_state, &all);
     Json(current_state.clone())
 }
 
