@@ -133,6 +133,13 @@
 	justify-content: center;
 }
 
+.currentNumber {
+	position: absolute;
+	top: 0;
+	right: 0;
+	font-size: 4em;
+	padding: 0.5em;
+}
 @keyframes fromScale0 {
 	from {
 		transform: scale(0);

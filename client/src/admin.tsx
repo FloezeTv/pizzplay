@@ -87,17 +87,12 @@ export default function Admin() {
 	}
 
 	const skip = (number: number) => {
-		if (number < 0) {
-			console.warn("Negative skipping currently displays buggy results...");
-		}
 		setState(s => {
 			return ({
 				...s,
 				currentNumber: s.currentNumber + number,
-				outgoingNumbers: [...(showOutgoingNumbers ? s.outgoingNumbers : []), s.currentNumber]
 			});
 		});
-		setShowOutgoingNumbers(true);
 	}
 
 	// Order pizza
@@ -122,6 +117,7 @@ export default function Admin() {
 			['Unskip', styles.primary, () => skip(-1)],
 		]} />
 		<WaitList onClick={console.log} waiting={[...state.waiting]} />
+		<div className={styles.currentNumber}>{state.currentNumber}</div>
 	</div>;
 }
 
